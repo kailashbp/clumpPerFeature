@@ -1,0 +1,17 @@
+__default__:
+  queue: premium                                  # Default queue
+  time: '48:00'                                   # Maximum job runtime (hh:mm)
+  mem: 8000                                       # Memory allocation per job (8GB = 8000MB)
+  cores: 1                                        # Number of CPU cores per task
+  name: $(basename $(pwd)):{rule}:{wildcards}     # Job name based on the Snakemake rule
+  output: logs/{rule}:{wildcards}.stdout          # Standard output log file
+  error: logs/{rule}:{wildcards}.stderr           # Standard error log file
+  himem: ''
+
+extract_sumstat:
+  mem: 2000                      
+  time: '1:00'                   
+
+run_plink_clumping:
+  mem: 8000                       
+  time: '1:00'                   

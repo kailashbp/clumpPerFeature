@@ -1,0 +1,15 @@
+# Input files
+phenotype_file: "phenotype_mdata_example.tsv" # 4 columns with header - chr start end feature
+sumstat_file: "eQTL_full_assoc.tsv.gz" # This is the QTL sumstat file - expected to provide the full associations and not just the top one. The sumstat is expected to be sorted and indexed, so that tabix can be used to get feature specific sumstats.
+
+# Columns to extract from full_assoc sumstat
+columns_to_extract: [2, 3, 4, 142]  # Column numbers to extract (1-based index)
+column_names: ["SNP", "CHR", "BP", "Random_P"]  # Custom column names for output
+
+bim_file: "/sc/arion/projects/bigbrain/data/VCF_CHECK_090424/FINAL_VCF/Merged_PLINK/Merge_EUR/merged_final_EUR.bim"
+plink_file: "/sc/arion/projects/bigbrain/data/VCF_CHECK_090424/FINAL_VCF/Merged_PLINK/Merge_EUR/merged_final_EUR"
+
+# PLINK clumping parameters
+clump_p1: "5e-8"
+clump_p2: "1e-2"
+clump_r2: "0.2"
