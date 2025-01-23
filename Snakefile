@@ -20,6 +20,8 @@ def get_features():
     return feature_dict
 
 feature_dict = get_features()
+feature_list = list(feature_dict.keys())  # Extracting feature names (keys)
+
 print("Features to process:", list(feature_dict.keys()))
 
 rule all:
@@ -112,3 +114,39 @@ rule run_plink_clumping:
             echo "Warning: No significant --clump results. Empty file created."
         fi
         """
+
+rule summarize_results:
+    input:
+        sumstats=expand("results/{feature}_sumstats.txt", feature=feature_list),
+        clumped=expand("results/{feature}_clump.clumped", feature=feature_list),
+        phenotype_file=config["phenotype_file"]  # Assuming feature info comes from here
+    output:
+        summary="results/snp_count_per_feature_clump_summary.tsv"
+    shell:
+        """
+        echo -e "CHR\\tSTART\\tEND\\tFEATURE\\tCIS_REGION_SNP_COUNT\\tSNP_COUNT_CLUMPED" > {output.summary}
+
+        while IFS=$'\t' read -r chr start end feature; do
+            sumstat_file="results/${{feature}}_sumstats.txt"
+            clumped_file="results/${{feature}}_clump.clumped"
+
+            # Count SNPs in the sumstat file (excluding the header)
+            if [ -f "$sumstat_file" ]; then
+                snp_count=$(awk 'NR > 1 { count++ } END {{ print count ? count : 0 }}' "$sumstat_file")
+            else
+                snp_count=0
+            fi
+
+            # Count SNPs in the clumped file (excluding the header)
+            if [ -f "$clumped_file" ]; then
+                clumped_snp_count=$(awk 'NR > 1 { count++ } END {{ print count ? count : 0 }}' "$clumped_file")
+            else
+                clumped_snp_count=0
+            fi
+
+            # Append the results to the summary file
+            echo -e "$chr\\t$start\\t$end\\t$feature\\t$snp_count\\t$clumped_snp_count" >> {output.summary}
+
+        done < {input.phenotype_file}
+        """
+
